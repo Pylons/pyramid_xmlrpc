@@ -1,7 +1,8 @@
-repoze.atemplate Changelog
-==========================
+repoze.bfg.xmlrpc Changelog
+===========================
 
-0.1 (unreleaesd)
+0.1 (11/18/2008)
 ----------------
 
 - Initial release.
+
