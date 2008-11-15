@@ -49,16 +49,22 @@ the view URL; traversal doesn't work from there.
    >>> s('Chris')
    Hello, Chris
 
-.. toctree::
-   :maxdepth: 2
+.. _api:
 
-   api.rst
+API Documentation for :mod:`repoze.bfg.xmlrpc`
+----------------------------------------------
+
+.. automodule:: repoze.bfg.xmlrpc
+
+  .. autofunction:: xmlrpc_view
+
+  .. autofunction:: xmlrpc_marshal
+
+  .. autofunction:: xmlrpc_response
+
+  .. autofunction:: parse_xmlrpc_request
 
 
-Topic A
--------
-
-Explain topic.
 
 
 Indices and tables
