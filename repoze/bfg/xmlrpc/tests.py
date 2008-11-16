@@ -65,6 +65,7 @@ class TestXMLRPCView(unittest.TestCase):
             return what
         wrapped = self._callFUT(unwrapped)
         self.assertEqual(wrapped.__name__, 'unwrapped')
+        self.assertEqual(wrapped.__grok_module__, unwrapped.__module__)
         context = testing.DummyModel()
         request = testing.DummyRequest()
         param = 'what'

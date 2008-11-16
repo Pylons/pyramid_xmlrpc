@@ -1,6 +1,11 @@
 repoze.bfg.xmlrpc Changelog
 ===========================
 
+0.2 (11/18/2008)
+----------------
+
+- Add repoze.bfg.convention support.
+
 0.1 (11/18/2008)
 ----------------
 

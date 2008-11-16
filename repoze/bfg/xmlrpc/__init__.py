@@ -88,6 +88,7 @@ def xmlrpc_view(wrapped):
         value = wrapped(context, *params)
         return xmlrpc_response(value)
     _curried.__name__ = wrapped.__name__
+    _curried.__grok_module__ = wrapped.__module__ # r.bfg.convention support
 
     return _curried
     
