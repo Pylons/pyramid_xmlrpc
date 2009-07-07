@@ -1,12 +1,19 @@
 repoze.bfg.xmlrpc Changelog
 ===========================
 
-0.2 (11/18/2008)
+0.3 (2009-07-06)
+----------------
+
+- Update docs to contain installation instructions.
+
+- Change setup.cfg index to bfgsite.
+
+0.2 (2008-12-18)
 ----------------
 
 - Add repoze.bfg.convention support.
 
-0.1 (11/18/2008)
+0.1 (2008-11-18)
 ----------------
 
 - Initial release.
