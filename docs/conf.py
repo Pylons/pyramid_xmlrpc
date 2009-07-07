@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# repoze.atemplate documentation build configuration file
+# repoze.bfg.xmlrpc documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing
 # dir.
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = 'repoze.atemplate'
+project = 'repoze.bfg.xmlrpc'
 copyright = '2008, Repoze Developers <repoze-dev@lists.repoze.org>'
 
 # The default replacements for |version| and |release|, also used in various
@@ -156,7 +156,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'atemplatedoc'
+htmlhelp_basename = 'xmlrpcdoc'
 
 
 # Options for LaTeX output
@@ -172,7 +172,7 @@ htmlhelp_basename = 'atemplatedoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'atemplate.tex', 'repoze.atemplate Documentation',
+  ('index', 'xmlrpc.tex', 'repoze.bfg.xmlrpc Documentation',
    'Repoze Developers', 'manual'),
 ]
 
