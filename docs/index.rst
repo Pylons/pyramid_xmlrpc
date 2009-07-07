@@ -3,6 +3,19 @@ Documentation for repoze.bfg.xmlrpc
 
 XML-RPC support for the :mod:`repoze.bfg` web framework.
 
+:mod:`repoze.bfg.xmlrpc` Installation
+-------------------------------------
+
+:mod:`repoze.bfg.xmlrpc` is a package that ships outside the main
+:mod:`repoze.bfg` distribution.  To install the package, use
+``easy_install``::
+
+  easy_install -i http://dist.repoze.org/bfgsite/simple repoze.bfg.xmrpc
+
+Or obtain the packge via `http://svn.repoze.org/repoze.bfg.xmlrpc
+<http://svn.repoze.org/rpoze.bfg.xmlrpc>`_ and use ``setup.py
+install``.
+
 :mod:`repoze.bfg.xmlrpc` Usage
 ------------------------------
 
@@ -34,6 +47,7 @@ view.
 
    <bfg:view
      name="say_hello"
+     view=".views.say_hello"
      for="*"
      />
 
@@ -63,8 +77,6 @@ API Documentation for :mod:`repoze.bfg.xmlrpc`
   .. autofunction:: xmlrpc_response
 
   .. autofunction:: parse_xmlrpc_request
-
-
 
 
 Indices and tables
