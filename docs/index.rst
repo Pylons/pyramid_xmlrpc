@@ -10,10 +10,10 @@ XML-RPC support for the :mod:`repoze.bfg` web framework.
 :mod:`repoze.bfg` distribution.  To install the package, use
 ``easy_install``::
 
-  easy_install -i http://dist.repoze.org/bfgsite/simple repoze.bfg.xmrpc
+  easy_install -i http://dist.repoze.org/bfgsite/simple repoze.bfg.xmlrpc
 
 Or obtain the packge via `http://svn.repoze.org/repoze.bfg.xmlrpc
-<http://svn.repoze.org/rpoze.bfg.xmlrpc>`_ and use ``setup.py
+<http://svn.repoze.org/repoze.bfg.xmlrpc>`_ and use ``setup.py
 install``.
 
 :mod:`repoze.bfg.xmlrpc` Usage
