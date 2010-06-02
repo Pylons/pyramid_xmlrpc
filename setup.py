@@ -47,7 +47,7 @@ setup(name='repoze.bfg.xmlrpc',
       namespace_packages=['repoze', 'repoze.bfg'],
       zip_safe=False,
       tests_require = ['repoze.bfg'],
-      install_requires=['repoze.bfg'],
+      install_requires=['setuptools','repoze.bfg'],
       test_suite="repoze.bfg.xmlrpc",
       )
 
