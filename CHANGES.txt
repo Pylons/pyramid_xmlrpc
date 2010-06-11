@@ -1,6 +1,13 @@
 repoze.bfg.xmlrpc Changelog
 ===========================
 
+0.4 (2010-06-11)
+----------------
+
+- Documentation tweaks
+
+- Add multi-method support via the XMLRPCView base class.
+
 0.3 (2009-07-06)
 ----------------
 
