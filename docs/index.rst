@@ -95,9 +95,9 @@ For example:
 
    from repoze.bfg.xmlrpc import XMLRPCView
 
-   class MyXMLRPCStuff(XMLRPCView)
+   class MyXMLRPCStuff(XMLRPCView):
    
-      def say_hello(self):
+      def say_hello(self, name):
           return 'Hello, %s' % name
 
       def say_goobye(self):
