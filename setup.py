@@ -12,7 +12,7 @@
 #
 ##############################################################################
 
-__version__ = '0.3'
+__version__ = '0.4dev'
 
 import os
 
@@ -30,7 +30,6 @@ setup(name='repoze.bfg.xmlrpc',
       description='XML-RPC support for repoze.bfg',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
-        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         "Topic :: Internet :: WWW/HTTP",

@@ -12,7 +12,7 @@
 # All configuration values have a default value; values that are commented
 # out serve to show the default value.
 
-import sys, os
+import sys, os, pkginfo, datetime
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -31,9 +31,18 @@ for item in os.listdir(parent):
 # General configuration
 # ---------------------
 
+pkg_info = pkginfo.Develop(os.path.join(os.path.dirname(__file__),'..'))
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    ]
+
+
+# Looks for bfg's objects
+intersphinx_mapping = {'http://docs.repoze.org/bfg/current': None}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -46,15 +55,14 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'repoze.bfg.xmlrpc'
-copyright = '2008, Repoze Developers <repoze-dev@lists.repoze.org>'
+copyright = '2008-%s, Repoze Developers <repoze-dev@lists.repoze.org>' % datetime.datetime.now().year
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.3'
+version = release = pkg_info.version
 # The full version, including alpha/beta/rc tags.
-release = '0.3'
 
 # There are two options for replacing |today|: either, you set today to
 # some non-false value, then it is used:

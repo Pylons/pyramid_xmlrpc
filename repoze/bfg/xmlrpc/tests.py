@@ -55,7 +55,7 @@ class TestParseXMLRPCRequest(unittest.TestCase):
         request.content_length = 1 << 24
         self.assertRaises(ValueError, self._callFUT, request)
 
-class TestXMLRPCView(unittest.TestCase):
+class TestDecorator(unittest.TestCase):
     def _callFUT(self, unwrapped):
         from repoze.bfg.xmlrpc import xmlrpc_view
         return xmlrpc_view(unwrapped)
@@ -75,5 +75,35 @@ class TestXMLRPCView(unittest.TestCase):
         request.body = packet
         request.content_length = len(packet)
         response = wrapped(context, request)
+        self.assertEqual(response.body, xmlrpclib.dumps((param,),
+                                                       methodresponse=True))
+
+class TestBaseClass(unittest.TestCase):
+
+    def test_normal(self):
+        
+        from repoze.bfg.xmlrpc import XMLRPCView
+        class Test(XMLRPCView):
+            def a_method(self,param):
+                return param
+
+        # set up a request
+        param = 'what'
+        import xmlrpclib
+        packet = xmlrpclib.dumps((param,), methodname='a_method')
+        request = testing.DummyRequest()
+        request.body = packet
+        request.content_length = len(packet)
+
+        # instantiate the view
+        context = testing.DummyModel()
+        instance = Test(context,request)
+
+        # these are fair game for the methods to use if they want
+        self.failUnless(instance.context is context)
+        self.failUnless(instance.request is request)
+
+        # exercise it
+        response = instance()
         self.assertEqual(response.body, xmlrpclib.dumps((param,),
                                                        methodresponse=True))

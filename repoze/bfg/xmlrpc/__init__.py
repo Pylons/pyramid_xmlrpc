@@ -34,12 +34,10 @@ def parse_xmlrpc_request(request):
     return params, method
 
 def xmlrpc_view(wrapped):
-    """ Function meant to be used as a decorator.  The ``xmlrpc_view``
-    function turns functions which accept params and return Python
-    structures into functions suitable for use as bfg views which an
-    XML-RPC response.  The decorated function must accept a
-    ``context`` argument and zero or more positional arguments
-    (conventionally named ``*params``).
+    """ This decorator turns functions which accept params and return Python
+    structures into functions suitable for use as bfg views that speak XML-RPC.
+    The decorated function must accept a ``context`` argument and zero or
+    more positional arguments (conventionally named ``*params``).
 
     E.g.::
 
@@ -67,9 +65,9 @@ def xmlrpc_view(wrapped):
           else:
               return {'say':'Goodbye!'}
 
-    Note that if you use ``repoze.bfg.convention``, you must decorate your
-    view function in the following order for it to be recognized by the
-    convention machinery as a view::
+    Note that if you use :class:`~repoze.bfg.view.bfg_view`, you must
+    decorate your view function in the following order for it to be
+    recognized by the convention machinery as a view::
 
       @bfg_view(name='say')
       @xmlrpc_view
@@ -79,8 +77,8 @@ def xmlrpc_view(wrapped):
           else:
               return {'say':'Goodbye!'}
 
-    In other words do *not* decorate it in ``xmlrpc_view``, then
-    ``bfg_view order``; it won't work.
+    In other words do *not* decorate it in :func:`~repoze.bfg.xmlrpc.xmlrpc_view`,
+    then :class:`~repoze.bfg.view.bfg_view`; it won't work.
     """
     
     def _curried(context, request):
@@ -92,4 +90,27 @@ def xmlrpc_view(wrapped):
 
     return _curried
     
+class XMLRPCView:
+    """A base class for a view that serves multiple methods by XML-RPC.
 
+    Subclass and add your methods as described in the documentation.
+    """
+
+    def __init__(self,context,request):
+        self.context = context
+        self.request = request
+
+    def __call__(self):
+        """
+        This method de-serializes the XML-RPC request and
+        dispatches the resulting method call to the correct
+        method on the :class:`~repoze.bfg.xmlrpc.XMLRPCView`
+        subclass instance.
+
+        .. warning::
+          Do not override this method in any subclass if you
+          want XML-RPC to continute to work!
+          
+        """
+        params, method = parse_xmlrpc_request(self.request)
+        return xmlrpc_response(getattr(self,method)(*params))
