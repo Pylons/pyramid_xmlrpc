@@ -12,7 +12,7 @@
 # All configuration values have a default value; values that are commented
 # out serve to show the default value.
 
-import sys, os, pkginfo, datetime
+import sys, os, datetime
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -27,6 +27,8 @@ os.chdir(wd)
 for item in os.listdir(parent):
     if item.endswith('.egg'):
         sys.path.append(os.path.join(parent, item))
+
+import pkginfo
 
 # General configuration
 # ---------------------
