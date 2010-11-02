@@ -42,7 +42,6 @@ extensions = [
     'sphinx.ext.intersphinx',
     ]
 
-
 # Looks for bfg's objects
 intersphinx_mapping = {'http://docs.pylonshq.com/pyramid/dev': None}
 
@@ -57,7 +56,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'pyramid_xmlrpc'
-copyright = '2008-%s, Repoze Developers <repoze-dev@lists.repoze.org>' % datetime.datetime.now().year
+copyright = '%s, Agendaless Consulting, Chris McDonough <chrism@plope.com>' % datetime.datetime.now().year
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -101,10 +100,15 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
+# Add and use Pylons theme
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+html_theme = 'pylons'
+
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'repoze.css'
+#html_style = 'repoze.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -116,7 +120,7 @@ html_style = 'repoze.css'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = '.static/logo_hi.gif'
+# html_logo = '.static/logo_hi.gif'
 
 # The name of an image file (within the static path) to use as favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or
