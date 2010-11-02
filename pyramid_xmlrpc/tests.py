@@ -1,9 +1,9 @@
 import unittest
-from repoze.bfg import testing
+from pyramid import testing
 
 class TestXMLRPCMarshal(unittest.TestCase):
     def _callFUT(self, value):
-        from repoze.bfg.xmlrpc import xmlrpc_marshal
+        from pyramid_xmlrpc import xmlrpc_marshal
         return xmlrpc_marshal(value)
         
     def test_xmlrpc_marshal_normal(self):
@@ -21,7 +21,7 @@ class TestXMLRPCMarshal(unittest.TestCase):
 
 class TestXMLRPResponse(unittest.TestCase):
     def _callFUT(self, value):
-        from repoze.bfg.xmlrpc import xmlrpc_response
+        from pyramid_xmlrpc import xmlrpc_response
         return xmlrpc_response(value)
         
     def test_xmlrpc_response(self):
@@ -36,7 +36,7 @@ class TestXMLRPResponse(unittest.TestCase):
         
 class TestParseXMLRPCRequest(unittest.TestCase):
     def _callFUT(self, request):
-        from repoze.bfg.xmlrpc import parse_xmlrpc_request
+        from pyramid_xmlrpc import parse_xmlrpc_request
         return parse_xmlrpc_request(request)
 
     def test_normal(self):
@@ -57,7 +57,7 @@ class TestParseXMLRPCRequest(unittest.TestCase):
 
 class TestDecorator(unittest.TestCase):
     def _callFUT(self, unwrapped):
-        from repoze.bfg.xmlrpc import xmlrpc_view
+        from pyramid_xmlrpc import xmlrpc_view
         return xmlrpc_view(unwrapped)
 
     def test_normal(self):
@@ -82,7 +82,7 @@ class TestBaseClass(unittest.TestCase):
 
     def test_normal(self):
         
-        from repoze.bfg.xmlrpc import XMLRPCView
+        from pyramid_xmlrpc import XMLRPCView
         class Test(XMLRPCView):
             def a_method(self,param):
                 return param

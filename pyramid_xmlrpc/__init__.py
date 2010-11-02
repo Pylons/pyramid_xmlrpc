@@ -35,13 +35,13 @@ def parse_xmlrpc_request(request):
 
 def xmlrpc_view(wrapped):
     """ This decorator turns functions which accept params and return Python
-    structures into functions suitable for use as bfg views that speak XML-RPC.
-    The decorated function must accept a ``context`` argument and zero or
-    more positional arguments (conventionally named ``*params``).
+    structures into functions suitable for use as Pyramid views that speak
+    XML-RPC.  The decorated function must accept a ``context`` argument and
+    zero or more positional arguments (conventionally named ``*params``).
 
     E.g.::
 
-      from repoze.bfg.xmlrpc import xmlrpc_view
+      from pyramid_xmlrpc import xmlrpc_view
 
       @xmlrpc_view
       def say(context, what):
@@ -52,8 +52,8 @@ def xmlrpc_view(wrapped):
 
     Equates to::
 
-      from repoze.bfg.xmlrpc import parse_xmlrpc_request
-      from repoze.bfg.xmlrpc import xmlrpc_response
+      from pyramid_xmlrpc import parse_xmlrpc_request
+      from pyramid_xmlrpc import xmlrpc_response
 
       def say_view(context, request):
           params, method = parse_xmlrpc_request(request)
@@ -65,11 +65,14 @@ def xmlrpc_view(wrapped):
           else:
               return {'say':'Goodbye!'}
 
-    Note that if you use :class:`~repoze.bfg.view.bfg_view`, you must
+    Note that if you use :class:`~pyramid.view.view_config`, you must
     decorate your view function in the following order for it to be
     recognized by the convention machinery as a view::
 
-      @bfg_view(name='say')
+      from pyramid.view import view_config
+      from pyramid_xmlrpc import xmlrpc_view
+
+      @view_config(name='say')
       @xmlrpc_view
       def say(context, what):
           if what == 'hello'
@@ -77,8 +80,8 @@ def xmlrpc_view(wrapped):
           else:
               return {'say':'Goodbye!'}
 
-    In other words do *not* decorate it in :func:`~repoze.bfg.xmlrpc.xmlrpc_view`,
-    then :class:`~repoze.bfg.view.bfg_view`; it won't work.
+    In other words do *not* decorate it in :func:`~pyramid_xmlrpc.xmlrpc_view`,
+    then :class:`~pyramid.view.view_config`; it won't work.
     """
     
     def _curried(context, request):
@@ -86,7 +89,7 @@ def xmlrpc_view(wrapped):
         value = wrapped(context, *params)
         return xmlrpc_response(value)
     _curried.__name__ = wrapped.__name__
-    _curried.__grok_module__ = wrapped.__module__ # r.bfg.convention support
+    _curried.__grok_module__ = wrapped.__module__ 
 
     return _curried
     
@@ -104,7 +107,7 @@ class XMLRPCView:
         """
         This method de-serializes the XML-RPC request and
         dispatches the resulting method call to the correct
-        method on the :class:`~repoze.bfg.xmlrpc.XMLRPCView`
+        method on the :class:`~pyramid_xmlrpc.XMLRPCView`
         subclass instance.
 
         .. warning::

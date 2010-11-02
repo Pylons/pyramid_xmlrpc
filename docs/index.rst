@@ -1,34 +1,34 @@
-Documentation for repoze.bfg.xmlrpc
-===================================
+Documentation for pyramid_xmlrpc
+================================
 
-XML-RPC support for the :mod:`repoze.bfg` web framework.
+XML-RPC support for the :mod:`pyramid` web framework.
 
-:mod:`repoze.bfg.xmlrpc` Installation
+:mod:`pyramid_xmlrpc` Installation
 -------------------------------------
 
-:mod:`repoze.bfg.xmlrpc` is a package that ships outside the main
-:mod:`repoze.bfg` distribution.  To install the package, use
+:mod:`pyramid_xmlrpc` is a package that ships outside the main
+:mod:`pyramid` distribution.  To install the package, use
 ``easy_install``::
 
-  easy_install -i http://dist.repoze.org/bfgsite/simple repoze.bfg.xmlrpc
+  easy_install pyramid_xmlrpc
 
-Or obtain the packge via `http://svn.repoze.org/repoze.bfg.xmlrpc
-<http://pypi.python.org/pypi/repoze.bfg.xmlrpc>`_ and use ``setup.py
+Or obtain the packge via `http://github.com/Pylons/pyramid_xmlrpc
+<http://github.com/Pylons/pyramid_xmlrpc>`_ and use ``setup.py
 install``.
 
-:mod:`repoze.bfg.xmlrpc` Usage
+:mod:`pyramid_xmlrpc` Usage
 ------------------------------
 
 XML-RPC allows you to expose one or more methods at a particular URL.
-:mod:`repoze.bfg.xmlrpc` has a simple usage pattern for exposing a 
-single method at a particular url, and a more complicated one for 
-when you want to expose multiple methods at a particular URL.
+:mod:`pyramid_xmlrpc` has a simple usage pattern for exposing a single method
+at a particular url, and a more complicated one for when you want to expose
+multiple methods at a particular URL.
 
 Exposing a single method
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a function in the form below.  The function will be meant to be
-called with positional parameters from an XML-RPC request.
+Create a function in the form below.  The function will be meant to be called
+with positional parameters from an XML-RPC request.
 
 .. code-block:: python
    :linenos:
@@ -36,12 +36,12 @@ called with positional parameters from an XML-RPC request.
    def say_hello(context, name):
        return 'Hello, %s' % name
 
-Then add the :func:`~repoze.bfg.xmlrpc.xmlrpc_view` decorator to the function.
+Then add the :func:`~pyramid_xmlrpc.xmlrpc_view` decorator to the function.
 
 .. code-block:: python
    :linenos:
 
-   from repoze.bfg.xmlrpc import xmlrpc_view
+   from pyramid_xmlrpc import xmlrpc_view
 
    @xmlrpc_view
    def say_hello(context, name):
@@ -50,18 +50,41 @@ Then add the :func:`~repoze.bfg.xmlrpc.xmlrpc_view` decorator to the function.
 Then configure your application registry to point to the ``say_hello``
 view.
 
+Using imperative code in your application's startup configuration:
+
+.. code-block:: python
+   :linenos:
+
+   from mypackage import say_hello
+   config.add_view(say_hello, name='say_hello')
+
+Using ZCML:
+
 .. code-block:: xml
    :linenos:
 
-   <bfg:view
+   <view
      name="say_hello"
      view=".views.say_hello"
      for="*"
      />
 
+Or using a ``view_config`` decorator:
+
+.. code-block:: python
+   :linenos:
+
+   from pyramid_xmlrpc import xmlrpc_view
+   from pyramid.view import view_config
+
+   @view_config(name='say_hello')
+   @xmlrpc_view
+   def say_hello(context, name):
+       return 'Hello, %s' % name
+
 Then call the function via an XML-RPC client.  Note that any XML-RPC
-``methodName`` will be ignored; you must point the client directly at
-the view URL; traversal doesn't work from there.
+``methodName`` will be ignored; you must point the client directly at the view
+URL; traversal doesn't work from there.
 
 .. code-block:: python
    :linenos:
@@ -76,16 +99,16 @@ Exposing multiple methods
 
 If you have multiple methods to expose at a particular url, you should
 group them together in a class. Think of this class in the same way
-as you would when you implement a normal :mod:`repoze.bfg` view as a 
+as you would when you implement a normal :mod:`pyramid` view as a 
 class rather than a function.
 
 The methods of the class will be those exposed as methods to XML-RPC.
 Not that XML-RPC only supports positional parameters.
 
 To make this view class handle incoming XML-RPC requests, you simply 
-need to subclass the :class:`~repoze.bfg.xmlrpc.XMLRPCView` class.
-:class:`~repoze.bfg.xmlrpc.XMLRPCView` provides a
-:meth:`~repoze.bfg.xmlrpc.XMLRPCView.__call__` method, so make sure
+need to subclass the :class:`~pyramid_xmlrpc.XMLRPCView` class.
+:class:`~pyramid_xmlrpc.XMLRPCView` provides a
+:meth:`~pyramid_xmlrpc.XMLRPCView.__call__` method, so make sure
 that your class doesn't provide one!
 
 For example:
@@ -93,7 +116,7 @@ For example:
 .. code-block:: python
    :linenos:
 
-   from repoze.bfg.xmlrpc import XMLRPCView
+   from pyramid_xmlrpc import XMLRPCView
 
    class MyXMLRPCStuff(XMLRPCView):
    
@@ -103,13 +126,23 @@ For example:
       def say_goobye(self):
           return 'Goodbye, cruel world'
 
-This class can then be registered with :mod:`repoze.bfg` as a 
-normal view: 
+This class can then be registered with :mod:`pyramid` as a 
+normal view.
+
+Using imperative code in your application's startup configuration:
+
+.. code-block:: python
+   :linenos:
+
+   from mypackage import MyXMLRPCStuff
+   config.add_view(MyXMLRPCStuff, name='RPC2')
+
+Via ZCML:
 
 .. code-block:: xml
    :linenos:
 
-   <bfg:view
+   <view
      name="RPC2"
      view=".views.MyXMLRPCStuff"
      for="*"
@@ -130,10 +163,10 @@ client:
 
 .. _api:
 
-API Documentation for :mod:`repoze.bfg.xmlrpc`
+API Documentation for :mod:`pyramid_xmlrpc`
 ----------------------------------------------
 
-.. automodule:: repoze.bfg.xmlrpc
+.. automodule:: pyramid_xmlrpc
 
   .. autofunction:: xmlrpc_view
 

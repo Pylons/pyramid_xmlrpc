@@ -12,7 +12,7 @@
 #
 ##############################################################################
 
-__version__ = '0.4'
+__version__ = '0.0'
 
 import os
 
@@ -25,28 +25,26 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-setup(name='repoze.bfg.xmlrpc',
+setup(name='pyramid_xmlrpc',
       version=__version__,
-      description='XML-RPC support for repoze.bfg',
+      description='XML-RPC support for the Pyramid web framework',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-        "Topic :: Internet :: WWW/HTTP :: WSGI",
+        "Framework :: Pylons",
         ],
-      keywords='web wsgi zope xml-rpc',
+      keywords='web wsgi pyramid pylons xml-rpc',
       author="Agendaless Consulting",
       author_email="repoze-dev@lists.repoze.org",
       url="http://www.repoze.org",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
-      namespace_packages=['repoze', 'repoze.bfg'],
       zip_safe=False,
-      tests_require = ['repoze.bfg', 'pkginfo'],
-      install_requires=['setuptools','repoze.bfg'],
-      test_suite="repoze.bfg.xmlrpc",
+      tests_require = ['pyramid', 'pkginfo'],
+      install_requires=['setuptools','pyramid'],
+      test_suite="pyramid_xmlrpc",
       )
 

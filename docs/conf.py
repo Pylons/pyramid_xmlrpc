@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# repoze.bfg.xmlrpc documentation build configuration file
+# pyramid_xmlrpc documentation build configuration file
 #
 # This file is execfile()d with the current directory set to its containing
 # dir.
@@ -44,7 +44,7 @@ extensions = [
 
 
 # Looks for bfg's objects
-intersphinx_mapping = {'http://docs.repoze.org/bfg/current': None}
+intersphinx_mapping = {'http://docs.pylonshq.com/pyramid/dev': None}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -56,7 +56,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = 'repoze.bfg.xmlrpc'
+project = 'pyramid_xmlrpc'
 copyright = '2008-%s, Repoze Developers <repoze-dev@lists.repoze.org>' % datetime.datetime.now().year
 
 # The default replacements for |version| and |release|, also used in various
@@ -182,7 +182,7 @@ htmlhelp_basename = 'xmlrpcdoc'
 # (source start file, target name, title,
 #  author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'xmlrpc.tex', 'repoze.bfg.xmlrpc Documentation',
+  ('index', 'xmlrpc.tex', 'pyramid_xmlrpc Documentation',
    'Repoze Developers', 'manual'),
 ]
 

@@ -1,0 +1,7 @@
+*.egg
+*.egg-info
+*.pyc
+.coverage
+.build
+env26/
+
