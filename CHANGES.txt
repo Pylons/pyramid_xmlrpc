@@ -1,8 +1,5 @@
-pyramid_xmlrpc
-==============
-
-0.1
----
+0.1 (2010-11-08)
+----------------
 
 - First Pyramid release (adapted from
   http://svn.repoze.org/repoze.bfg.xmlrpc/trunk/, after the 0.4 release).
