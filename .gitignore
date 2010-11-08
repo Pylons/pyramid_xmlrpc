@@ -4,4 +4,4 @@
 .coverage
 .build
 env26/
-
+dist/

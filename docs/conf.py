@@ -28,12 +28,9 @@ for item in os.listdir(parent):
     if item.endswith('.egg'):
         sys.path.append(os.path.join(parent, item))
 
-import pkginfo
 
 # General configuration
 # ---------------------
-
-pkg_info = pkginfo.Develop(os.path.join(os.path.dirname(__file__),'..'))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -62,7 +59,9 @@ copyright = '%s, Agendaless Consulting, Chris McDonough <chrism@plope.com>' % da
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = release = pkg_info.version
+version = '0.1'
+
+release = version
 # The full version, including alpha/beta/rc tags.
 
 # There are two options for replacing |today|: either, you set today to
@@ -131,7 +130,7 @@ html_theme = 'pylons'
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['.static']
+html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -192,7 +191,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the
 # top of the title page.
-latex_logo = '.static/logo_hi.gif'
+latex_logo = '_static/logo_hi.gif'
 
 # For "manual" documents, if this is true, then toplevel headings are
 # parts, not chapters.

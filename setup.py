@@ -12,12 +12,9 @@
 #
 ##############################################################################
 
-__version__ = '0.0'
+__version__ = '0.1'
 
 import os
-
-from ez_setup import use_setuptools
-use_setuptools()
 
 from setuptools import setup, find_packages
 
@@ -36,14 +33,14 @@ setup(name='pyramid_xmlrpc',
         "Framework :: Pylons",
         ],
       keywords='web wsgi pyramid pylons xml-rpc',
-      author="Agendaless Consulting",
-      author_email="repoze-dev@lists.repoze.org",
-      url="http://www.repoze.org",
+      author="Chris McDonough, Agendaless Consulting",
+      author_email="pylons-discuss@googlegroups.com",
+      url="http://docs.pylonshq.com",
       license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      tests_require = ['pyramid', 'pkginfo'],
+      tests_require = ['pyramid'],
       install_requires=['setuptools','pyramid'],
       test_suite="pyramid_xmlrpc",
       )
