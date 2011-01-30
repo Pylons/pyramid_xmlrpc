@@ -1,26 +1,107 @@
+import inspect
 import xmlrpclib
-import webob
 
-def xmlrpc_marshal(data):
-    """ Marshal a Python data structure into an XML document suitable
-    for use as an XML-RPC response and return the document.  If
-    ``data`` is an ``xmlrpclib.Fault`` instance, it will be marshalled
-    into a suitable XML-RPC fault response."""
-    if isinstance(data, xmlrpclib.Fault):
-        return xmlrpclib.dumps(data)
-    else:
-        return xmlrpclib.dumps((data,),  methodresponse=True)
+from zope.interface import implements
+from zope.interface import providedBy
 
-def xmlrpc_response(data):
-    """ Marshal a Python data structure into a webob ``Response``
-    object with a body that is an XML document suitable for use as an
-    XML-RPC response with a content-type of ``text/xml`` and return
-    the response."""
-    xml = xmlrpc_marshal(data)
-    response = webob.Response(xml)
-    response.content_type = 'text/xml'
-    response.content_length = len(xml)
-    return response
+from pyramid.interfaces import IViewClassifier
+from pyramid.interfaces import IView
+from pyramid.interfaces import IViewMapperFactory
+
+from pyramid.events import NewRequest
+from pyramid.exceptions import NotFound
+from pyramid.exceptions import Forbidden
+from pyramid.traversal import traverse
+from pyramid.security import has_permission
+from pyramid.view import view_config
+
+# MapplyViewMapper is not an API; it may be moved into another package later
+
+class MapplyViewMapper(object): 
+    implements(IViewMapperFactory)
+    def __init__(self, **kw):
+        self.attr = kw.get('attr')
+
+    def __call__(self, view):
+        attr = self.attr
+        if inspect.isclass(view):
+            def _class_view(context, request):
+                params = getattr(request, 'xmlrpc_params', ())
+                keywords = dict(request.params.items())
+                if request.matchdict:
+                    keywords.update(request.matchdict)
+                if attr is None:
+                    inst = view(request)
+                    response = self.mapply(inst, params, keywords)
+                else:
+                    inst = view(request)
+                    response = self.mapply(getattr(inst, attr), params,
+                                           keywords)
+                request.__view__ = inst
+                return response
+            mapped_view = _class_view
+        else:
+            def _nonclass_view(context, request):
+                params = (request,) + getattr(request, 'xmlrpc_params', ())
+                keywords = dict(request.params.items())
+                if request.matchdict:
+                    keywords.update(request.matchdict)
+                if attr is None:
+                    response = self.mapply(view, params, keywords)
+                else:
+                    response = self.mapply(getattr(view, attr), params,
+                                           keywords)
+                return response
+            mapped_view = _nonclass_view
+
+        return mapped_view
+
+    def mapply(self, ob, positional, keyword):
+
+        f = ob
+        im = False
+
+        if hasattr(f, 'im_func'):
+            im = True
+
+        elif not hasattr(f, 'func_defaults'):
+            if hasattr(f, '__call__'):
+                f = f.__call__
+                if hasattr(f, 'im_func'):
+                    im = True
+
+        if im:
+            f = f.im_func
+            c = f.func_code
+            defaults = f.func_defaults
+            names = c.co_varnames[1:c.co_argcount]
+        else:
+            defaults = f.func_defaults
+            c = f.func_code
+            names = c.co_varnames[:c.co_argcount]
+
+        nargs = len(names)
+        args = []
+        if positional:
+            positional = list(positional)
+            if len(positional) > nargs:
+                raise TypeError('too many arguments')
+            args = positional
+
+        get = keyword.get
+        nrequired = len(names) - (len(defaults or ()))
+        for index in range(len(args), len(names)):
+            name = names[index]
+            v = get(name, args)
+            if v is args:
+                if index < nrequired:
+                    raise TypeError('argument %s was omitted' % name)
+                else:
+                    v = defaults[index-nrequired]
+            args.append(v)
+
+        args = tuple(args)
+        return ob(*args)
 
 def parse_xmlrpc_request(request):
     """ Deserialize the body of a request from an XML-RPC request
@@ -28,92 +109,145 @@ def parse_xmlrpc_request(request):
     element in the tuple is the method params as a sequence, the
     second element in the tuple is the method name."""
     if request.content_length > (1 << 23):
-        # protect from DOS (> 8MB body)
+        # protect from DOS (> 8MB body), webob will only read CONTENT_LENGTH
+        # bytes when body is accessed, so no worries about getting a
+        # bogus CONTENT_LENGTH header
         raise ValueError('Body too large (%s bytes)' % request.content_length)
-    params, method = xmlrpclib.loads(request.body)
+    params, method = xmlrpclib.loads(request.body, use_datetime=True)
     return params, method
 
-def xmlrpc_view(wrapped):
-    """ This decorator turns functions which accept params and return Python
-    structures into functions suitable for use as Pyramid views that speak
-    XML-RPC.  The decorated function must accept a ``context`` argument and
-    zero or more positional arguments (conventionally named ``*params``).
+class xmlrpc_config(view_config):
+    """ This decorator acts almost exactly like
+    :class:`pyramid.view.view_config` but it produces a view configuration
+    which can call an XMLRPC callable rather than a standard Pyramid view
+    callable.
+
+    An XMLRPC callable is one which accepts a variable argument list, which
+    will be populated by items available from the XMLRPC params list,
+    ``request.params`` and ``request.matchdict``.  Its first argument must be
+    ``request``, the other arguments will be populated from the available
+    parameters.
 
     E.g.::
 
-      from pyramid_xmlrpc import xmlrpc_view
+      from pyramid.xmlrpc import xmlrpc_config
 
-      @xmlrpc_view
-      def say(context, what):
-          if what == 'hello'
-              return {'say':'Hello!'}
-          else:
-              return {'say':'Goodbye!'}
-
-    Equates to::
-
-      from pyramid_xmlrpc import parse_xmlrpc_request
-      from pyramid_xmlrpc import xmlrpc_response
-
-      def say_view(context, request):
-          params, method = parse_xmlrpc_request(request)
-          return say(context, *params)
-
-      def say(context, what):
-          if what == 'hello'
-              return {'say':'Hello!'}
-          else:
-              return {'say':'Goodbye!'}
-
-    Note that if you use :class:`~pyramid.view.view_config`, you must
-    decorate your view function in the following order for it to be
-    recognized by the convention machinery as a view::
-
-      from pyramid.view import view_config
-      from pyramid_xmlrpc import xmlrpc_view
-
-      @view_config(name='say')
-      @xmlrpc_view
-      def say(context, what):
-          if what == 'hello'
-              return {'say':'Hello!'}
-          else:
-              return {'say':'Goodbye!'}
-
-    In other words do *not* decorate it in :func:`~pyramid_xmlrpc.xmlrpc_view`,
-    then :class:`~pyramid.view.view_config`; it won't work.
+      @xmlrpc_config()
+      def say(request, what):
+          return {'say':what}
     """
-    
-    def _curried(context, request):
+    def __init__(self, name='', request_type=None, for_=None, permission=None,
+                 route_name=None, request_method=None, request_param=None,
+                 containment=None, attr=None, wrapper=None, xhr=False,
+                 accept=None, header=None, path_info=None, custom_predicates=(),
+                 context=None, view_mapper=MapplyViewMapper,
+                 renderer='xmlrpc'):
+        self.name = name
+        self.request_type = request_type
+        self.context = context or for_
+        self.permission = permission
+        self.route_name = route_name
+        self.request_method = request_method
+        self.request_param = request_param
+        self.containment = containment
+        self.attr = attr
+        self.wrapper = wrapper
+        self.xhr = xhr
+        self.accept = accept
+        self.header = header
+        self.path_info = path_info
+        self.custom_predicates = custom_predicates
+        self.renderer = renderer
+        self.view_mapper = view_mapper
+        self.custom_predicates = tuple(custom_predicates) + (is_xmlrpc_request,)
+
+def xmlrpc_renderer_factory(info):
+    def _render(value, system):
+        request = system.get('request')
+        if request is not None:
+            if not hasattr(request, 'response_content_type'):
+                request.response_content_type = 'text/xml'
+        if isinstance(value, xmlrpclib.Fault):
+            return xmlrpclib.dumps(value)
+        else:
+            return xmlrpclib.dumps((value,),  methodresponse=True)
+    return _render
+
+def xmlrpc_traversal_view(context, request):
+    # duplicate some logic from router to do Zope-style traversal and view
+    # lookup.
+    params, method = request.xmlrpc_params, request.xmlrpc_method
+    names = method.split('.')
+    info = traverse(context, '/'.join(names))
+    inner_context = info['context']
+    view_name = info['view_name']
+    repr_permission = request.registry.settings.get(
+        'pyramid_xmlrpc.repr_permission', 'view')
+
+    if view_name == '__call__':
+        view_name = ''
+
+    if view_name == '__repr__':
+        def view(context, request):
+            if has_permission(context, request, repr_permission):
+                return repr(context)
+            raise Forbidden('No "%s" permission on context' % repr_permission)
+    else:
+        provides = [IViewClassifier] + map(providedBy,
+                                           (request, inner_context))
+        reg = request.registry
+        view = reg.adapters.lookup(provides, IView, view_name, default=None)
+
+    if getattr(view, '__original_view__', None) is xmlrpc_traversal_view:
+        view = None
+
+    if view is None:
+        raise NotFound(method)
+
+    request.__dict__.update(info)
+    return view(inner_context, request)
+
+def is_xmlrpc_request(context, request):
+    return bool(getattr(request, 'is_xmlrpc', False))
+
+def _set_xmlrpc_params(event, override):
+    request = event.request
+    if (request.content_type == 'text/xml'
+        and request.method == 'POST'
+        and not 'soapaction' in request.headers
+        and not 'x-pyramid-avoid-xmlrpc' in request.headers):
         params, method = parse_xmlrpc_request(request)
-        value = wrapped(context, *params)
-        return xmlrpc_response(value)
-    _curried.__name__ = wrapped.__name__
-    _curried.__grok_module__ = wrapped.__module__ 
+        request.xmlrpc_params, request.xmlrpc_method = params, method
+        request.is_xmlrpc = True
+        if override:
+            request.override_renderer = 'xmlrpc'
+        return True
+    return False
 
-    return _curried
-    
-class XMLRPCView:
-    """A base class for a view that serves multiple methods by XML-RPC.
+def set_xmlrpc_params_omnipresent(event):
+    return _set_xmlrpc_params(event, override=True)
 
-    Subclass and add your methods as described in the documentation.
-    """
+def set_xmlrpc_params(event):
+    return _set_xmlrpc_params(event, override=False)
 
-    def __init__(self,context,request):
-        self.context = context
-        self.request = request
+def limited(config):
+    """ ``config.include`` target which sets up limited XML-RPC access to an
+    application.  Only views configured via ``pyramid_xmlrpc.xmlrpc_config``
+    will be exposed to the world."""
+    config.add_renderer('xmlrpc', xmlrpc_renderer_factory)
+    config.add_subscriber(set_xmlrpc_params, NewRequest)
 
-    def __call__(self):
-        """
-        This method de-serializes the XML-RPC request and
-        dispatches the resulting method call to the correct
-        method on the :class:`~pyramid_xmlrpc.XMLRPCView`
-        subclass instance.
+def omnipresent(config):
+    """ ``config.include`` target which sets up omnipresent (Zope-style)
+    XML-RPC access to an applicaton.  Any view configured that uses a
+    renderer will be accessible via XML-RPC.  Traversal over the resource
+    tree via xmlrpc will also work."""
+    config.add_renderer('xmlrpc', xmlrpc_renderer_factory)
+    config.add_subscriber(set_xmlrpc_params_omnipresent, NewRequest)
+    config.add_view(
+        xmlrpc_traversal_view,
+        renderer='xmlrpc',
+        custom_predicates=(is_xmlrpc_request,)
+        )
 
-        .. warning::
-          Do not override this method in any subclass if you
-          want XML-RPC to continute to work!
-          
-        """
-        params, method = parse_xmlrpc_request(self.request)
-        return xmlrpc_response(getattr(self,method)(*params))
+includeme = limited
