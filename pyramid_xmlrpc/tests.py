@@ -172,13 +172,14 @@ class Test_xmlrpc_config(unittest.TestCase):
         from pyramid_xmlrpc import xmlrpc_config
         return xmlrpc_config(**kw)
 
-    def test_it_no_custom_predicates(self):
+    def test_it_no_request_type(self):
+        from pyramid_xmlrpc import IXMLRPCRequest
         inst = self._makeOne()
-        self.assertEqual(len(inst.custom_predicates), 1)
+        self.assertEqual(inst.request_type, IXMLRPCRequest)
 
-    def test_it_with_custom_predicates(self):
-        inst = self._makeOne(custom_predicates=(1,))
-        self.assertEqual(len(inst.custom_predicates), 2)
+    def test_it_with_request_type(self):
+        inst = self._makeOne(request_type=1)
+        self.assertEqual(inst.request_type, 1)
 
 class Test_xmlrpc_renderer_factory(unittest.TestCase):
     def _callFUT(self, info):
@@ -290,25 +291,6 @@ class Test_xmlrpc_traversal_view(unittest.TestCase):
         result = self._callFUT(context, request)
         self.assertEqual(result, '123')
 
-class Test_is_xmlrpc_request(unittest.TestCase):
-    def _callFUT(self, context, request):
-        from pyramid_xmlrpc import is_xmlrpc_request
-        return is_xmlrpc_request(context, request)
-
-    def test_true(self):
-        request = testing.DummyRequest()
-        request.is_xmlrpc = True
-        self.assertEqual(self._callFUT(None, request), True)
-
-    def test_false(self):
-        request = testing.DummyRequest()
-        request.is_xmlrpc = False
-        self.assertEqual(self._callFUT(None, request), False)
-
-    def test_missing_false(self):
-        request = testing.DummyRequest()
-        self.assertEqual(self._callFUT(None, request), False)
-
 class Test__set_xmlrpc_params(unittest.TestCase):
     def _callFUT(self, event, override):
         from pyramid_xmlrpc import _set_xmlrpc_params
@@ -356,6 +338,7 @@ class Test__set_xmlrpc_params(unittest.TestCase):
 
     def test_true_no_override(self):
         import xmlrpclib
+        from pyramid_xmlrpc import IXMLRPCRequest
         request = testing.DummyRequest()
         request.content_type = 'text/xml'
         request.method = 'POST'
@@ -365,13 +348,14 @@ class Test__set_xmlrpc_params(unittest.TestCase):
         event.request = request
         result = self._callFUT(event, False)
         self.assertEqual(result, True)
-        self.assertEqual(request.is_xmlrpc, True)
+        self.failUnless(IXMLRPCRequest.providedBy(request))
         self.assertEqual(request.xmlrpc_params, ('a',))
         self.assertEqual(request.xmlrpc_method, None)
         self.assertEqual(getattr(request, 'override_renderer', None), None)
 
     def test_true_with_override(self):
         import xmlrpclib
+        from pyramid_xmlrpc import IXMLRPCRequest
         request = testing.DummyRequest()
         request.content_type = 'text/xml'
         request.method = 'POST'
@@ -381,7 +365,7 @@ class Test__set_xmlrpc_params(unittest.TestCase):
         event.request = request
         result = self._callFUT(event, True)
         self.assertEqual(result, True)
-        self.assertEqual(request.is_xmlrpc, True)
+        self.failUnless(IXMLRPCRequest.providedBy(request))
         self.assertEqual(request.xmlrpc_params, ('a',))
         self.assertEqual(request.xmlrpc_method, None)
         self.assertEqual(request.override_renderer, 'xmlrpc')

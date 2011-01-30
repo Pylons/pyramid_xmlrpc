@@ -2,6 +2,8 @@ import inspect
 import xmlrpclib
 
 from zope.interface import implements
+from zope.interface import alsoProvides
+from zope.interface import Interface
 from zope.interface import providedBy
 
 from pyramid.interfaces import IViewClassifier
@@ -143,6 +145,8 @@ class xmlrpc_config(view_config):
                  context=None, view_mapper=MapplyViewMapper,
                  renderer='xmlrpc'):
         self.name = name
+        if request_type is None:
+            request_type = IXMLRPCRequest
         self.request_type = request_type
         self.context = context or for_
         self.permission = permission
@@ -159,7 +163,7 @@ class xmlrpc_config(view_config):
         self.custom_predicates = custom_predicates
         self.renderer = renderer
         self.view_mapper = view_mapper
-        self.custom_predicates = tuple(custom_predicates) + (is_xmlrpc_request,)
+        self.custom_predicates = custom_predicates
 
 def xmlrpc_renderer_factory(info):
     def _render(value, system):
@@ -207,18 +211,20 @@ def xmlrpc_traversal_view(context, request):
     request.__dict__.update(info)
     return view(inner_context, request)
 
-def is_xmlrpc_request(context, request):
-    return bool(getattr(request, 'is_xmlrpc', False))
+class IXMLRPCRequest(Interface):
+    # marker interface
+    pass
 
 def _set_xmlrpc_params(event, override):
     request = event.request
+    headers = request.headers
     if (request.content_type == 'text/xml'
         and request.method == 'POST'
-        and not 'soapaction' in request.headers
-        and not 'x-pyramid-avoid-xmlrpc' in request.headers):
+        and not 'soapaction' in headers
+        and not 'x-pyramid-avoid-xmlrpc' in headers):
         params, method = parse_xmlrpc_request(request)
         request.xmlrpc_params, request.xmlrpc_method = params, method
-        request.is_xmlrpc = True
+        alsoProvides(request, IXMLRPCRequest)
         if override:
             request.override_renderer = 'xmlrpc'
         return True
@@ -247,7 +253,7 @@ def omnipresent(config):
     config.add_view(
         xmlrpc_traversal_view,
         renderer='xmlrpc',
-        custom_predicates=(is_xmlrpc_request,)
+        request_type=IXMLRPCRequest,
         )
 
 includeme = limited
