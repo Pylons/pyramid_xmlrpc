@@ -370,5 +370,100 @@ class Test__set_xmlrpc_params(unittest.TestCase):
         self.assertEqual(request.xmlrpc_method, None)
         self.assertEqual(request.override_renderer, 'xmlrpc')
 
+class Test_set_xmlrpc_params_omnipresent(unittest.TestCase):
+    def _callFUT(self, event):
+        from pyramid_xmlrpc import set_xmlrpc_params_omnipresent
+        return set_xmlrpc_params_omnipresent(event)
+
+    def test_it(self):
+        import xmlrpclib
+        from pyramid_xmlrpc import IXMLRPCRequest
+        request = testing.DummyRequest()
+        request.content_type = 'text/xml'
+        request.method = 'POST'
+        request.headers = {}
+        request.body = xmlrpclib.dumps(('a',))
+        event = DummyEvent()
+        event.request = request
+        result = self._callFUT(event)
+        self.assertEqual(result, True)
+        self.failUnless(IXMLRPCRequest.providedBy(request))
+        self.assertEqual(request.xmlrpc_params, ('a',))
+        self.assertEqual(request.xmlrpc_method, None)
+        self.assertEqual(request.override_renderer, 'xmlrpc')
+
+class Test_set_xmlrpc_params(unittest.TestCase):
+    def _callFUT(self, event):
+        from pyramid_xmlrpc import set_xmlrpc_params
+        return set_xmlrpc_params(event)
+
+    def test_it(self):
+        import xmlrpclib
+        from pyramid_xmlrpc import IXMLRPCRequest
+        request = testing.DummyRequest()
+        request.content_type = 'text/xml'
+        request.method = 'POST'
+        request.headers = {}
+        request.body = xmlrpclib.dumps(('a',))
+        event = DummyEvent()
+        event.request = request
+        result = self._callFUT(event)
+        self.assertEqual(result, True)
+        self.failUnless(IXMLRPCRequest.providedBy(request))
+        self.assertEqual(request.xmlrpc_params, ('a',))
+        self.assertEqual(request.xmlrpc_method, None)
+        self.assertEqual(getattr(request, 'override_renderer', None), None)
+
+class Test_limited(unittest.TestCase):
+    def _callFUT(self, config):
+        from pyramid_xmlrpc import limited
+        return limited(config)
+
+    def test_it(self):
+        from pyramid_xmlrpc import xmlrpc_renderer_factory
+        from pyramid_xmlrpc import set_xmlrpc_params
+        from pyramid.events import NewRequest
+        config = DummyConfig()
+        self._callFUT(config)
+        self.assertEqual(config.renderers['xmlrpc'], xmlrpc_renderer_factory)
+        self.assertEqual(config.views, [])
+        self.assertEqual(config.subscribers, [(set_xmlrpc_params, NewRequest)])
+
+class Test_omnipresent(unittest.TestCase):
+    def _callFUT(self, config):
+        from pyramid_xmlrpc import omnipresent
+        return omnipresent(config)
+
+    def test_it(self):
+        from pyramid_xmlrpc import xmlrpc_renderer_factory
+        from pyramid_xmlrpc import set_xmlrpc_params_omnipresent
+        from pyramid_xmlrpc import IXMLRPCRequest
+        from pyramid_xmlrpc import xmlrpc_traversal_view
+        from pyramid.events import NewRequest
+        config = DummyConfig()
+        self._callFUT(config)
+        self.assertEqual(config.renderers['xmlrpc'], xmlrpc_renderer_factory)
+        self.assertEqual(config.views,
+                         [(xmlrpc_traversal_view,
+                           {'request_type':IXMLRPCRequest,
+                            'renderer':'xmlrpc'})])
+        self.assertEqual(config.subscribers, [(set_xmlrpc_params_omnipresent,
+                                               NewRequest)])
+
 class DummyEvent(object):
     pass
+
+class DummyConfig(object):
+    def __init__(self):
+        self.renderers = {}
+        self.subscribers = []
+        self.views = []
+
+    def add_renderer(self, name, factory):
+        self.renderers[name] = factory
+
+    def add_subscriber(self, impl, type):
+        self.subscribers.append((impl, type))
+        
+    def add_view(self, view, **kw):
+        self.views.append((view, kw))
