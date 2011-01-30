@@ -142,7 +142,7 @@ class xmlrpc_config(view_config):
                  route_name=None, request_method=None, request_param=None,
                  containment=None, attr=None, wrapper=None, xhr=False,
                  accept=None, header=None, path_info=None, custom_predicates=(),
-                 context=None, view_mapper=MapplyViewMapper,
+                 context=None, mapper=MapplyViewMapper,
                  renderer='xmlrpc'):
         self.name = name
         if request_type is None:
@@ -162,7 +162,7 @@ class xmlrpc_config(view_config):
         self.path_info = path_info
         self.custom_predicates = custom_predicates
         self.renderer = renderer
-        self.view_mapper = view_mapper
+        self.mapper = mapper
         self.custom_predicates = custom_predicates
 
 def xmlrpc_renderer_factory(info):
