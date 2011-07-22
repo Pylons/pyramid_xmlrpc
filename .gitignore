@@ -1,7 +1,11 @@
 *.egg
 *.egg-info
 *.pyc
+*$py.class
+coverage.xml
+nosetests.xml
 .coverage
 .build
 env26/
 dist/
+.tox/
