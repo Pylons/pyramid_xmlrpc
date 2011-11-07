@@ -105,7 +105,7 @@ html_theme_path = ['_themes']
 html_theme = 'pyramid'
 
 html_theme_options = {
-    'github_url': 'https://github.com/Pylons/pyramid_chameleon_genshi'
+    'github_url': 'https://github.com/Pylons/pyramid_xmlrpc'
     }
 
 
