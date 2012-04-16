@@ -26,6 +26,8 @@ except IOError:
     README = ''
     CHANGES = ''
 
+testing_extras = ['nose', 'coverage']
+
 setup(name='pyramid_xmlrpc',
       version=__version__,
       description='XML-RPC support for the Pyramid web framework',
@@ -47,5 +49,8 @@ setup(name='pyramid_xmlrpc',
       tests_require = ['pyramid'],
       install_requires=['setuptools','pyramid'],
       test_suite="pyramid_xmlrpc",
-      )
+      extras_require = {
+        'testing':  testing_extras,
+      },
+)
 
