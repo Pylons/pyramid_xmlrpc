@@ -9,3 +9,4 @@ nosetests.xml
 env26/
 dist/
 .tox/
+docs/_build/

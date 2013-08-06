@@ -26,6 +26,8 @@ except IOError:
     README = ''
     CHANGES = ''
 
+testing_extras = ['nose', 'coverage']
+
 setup(name='pyramid_xmlrpc',
       version=__version__,
       description='XML-RPC support for the Pyramid web framework',
@@ -33,8 +35,12 @@ setup(name='pyramid_xmlrpc',
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Internet :: WWW/HTTP",
-        "Framework :: Pylons",
+        "Framework :: Pyramid",
         ],
       keywords='web wsgi pyramid pylons xml-rpc',
       author="Chris McDonough, Agendaless Consulting",
@@ -47,5 +53,8 @@ setup(name='pyramid_xmlrpc',
       tests_require = ['pyramid'],
       install_requires=['setuptools','pyramid'],
       test_suite="pyramid_xmlrpc",
-      )
+      extras_require = {
+        'testing':  testing_extras,
+      },
+)
 

@@ -1,3 +1,13 @@
+After 0.1
+---------
+
+- Drop Jython support (until a 2.7-compatible release).
+
+- Drop Python 2.5 support.
+
+- Added 'setup.py dev' alias (installs 'nose' and 'coverage').
+
+
 0.1 (2010-11-08)
 ----------------
 
